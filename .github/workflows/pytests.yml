@@ -15,8 +15,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       run: |
-        wget "https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tar.tgz"
-        tar xzvf "Python-${{ matrix.python-version }}.tar.tgz"
+        wget "https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tgz"
+        tar xzvf "Python-${{ matrix.python-version }}.tgz"
         cd Python-${{ matrix.python-version }}
         ./configure --enable-optimizations --enable-unicode=ucs4
         sudo make install
