@@ -31,4 +31,4 @@ jobs:
             sudo apt update
             sudo apt install -y ghostscript
             pip install pytest
-            python setup.py test
+            python ./.github/testroot.py
