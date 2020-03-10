@@ -14,10 +14,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-            
+      run: |
+        wget "https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tar.tgz"
+        tar xzvf "Python-${{ matrix.python-version }}.tar.tgz"
+        cd Python-${{ matrix.python-version }}
+        ./configure --enable-optimizations --enable-unicode=ucs4
+        sudo make install
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
