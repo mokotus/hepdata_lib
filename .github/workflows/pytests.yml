@@ -1,6 +1,6 @@
-name: Python tests
+name: Python package
 
-on: [push, pull_request]
+on: [pull_request, push]
 
 jobs:
   build:
@@ -8,19 +8,27 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [2.7, 3.6]
-
+        os: [ubuntu-18.04]
+        python-version: [2.7]
+      fail-fast: false
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+            
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
     - name: Test with pytest
       run: |
-        pip install pytest
-        pytest
+            pip install numpy==1.16.5
+            curl -O https://root.cern.ch/download/root_v6.20.00.Linux-ubuntu18-x86_64-gcc7.4.tar.gz
+            tar xzf root_v6.20.00.Linux-ubuntu18-x86_64-gcc7.4.tar.gz
+            source ./root/bin/thisroot.sh
+            pip install --upgrade enum34 pytest_pylint configparser astroid coveralls
+            sudo apt update
+            sudo apt install -y ghostscript
+            pip install pytest
+            python setup.py test
