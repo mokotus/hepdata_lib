@@ -4,7 +4,6 @@ on: [pull_request, push]
 
 jobs:
   build:
-
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -14,15 +13,40 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Print Python Unicode version
       run: |
-        wget "https://www.python.org/ftp/python/${{ matrix.python-version }}/Python-${{ matrix.python-version }}.tgz"
-        tar xzvf "Python-${{ matrix.python-version }}.tgz"
-        cd Python-${{ matrix.python-version }}
-        ./configure --enable-optimizations --enable-unicode=ucs4
-        sudo make install
+        python -c "import sys; print ('UCS4 build' if sys.maxunicode > 65535 else 'UCS2 build')"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+    - name: Cache ROOT
+      id: cache-root
+      uses: actions/cache@v1
+      with:
+        path: rootBuild
+        key: ${{ runner.os }}-rootbuild
+    - name: Download and build ROOT
+      if: steps.cache-root.outputs.cache-hit != 'true'
+      run: |
+        echo "Cache miss, building ROOT from source..."
+        wget https://root.cern/download/root_v6.20.00.source.tar.gz
+        tar -xvf root_v6.20.00.source.tar.gz
+        mkdir rootBuild
+        cd rootBuild
+        sudo apt-get install cmake -y
+        cmake ../root-6.20.00
+        cmake --build . -- -j4
+        source bin/thisroot.sh
+        cd ..
+    - name: Source cached ROOT
+      if: steps.cache-root.outputs.cache-hit == 'true'
+      run: |
+        echo "Cache hit, sourcing cached ROOT..."
+        source bin/thisroot.sh
+        cd ..
     - name: Test with pytest
       run: |
             pip install numpy==1.16.5
