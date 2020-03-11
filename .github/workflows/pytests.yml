@@ -28,6 +28,9 @@ jobs:
       with:
         path: rootBuild
         key: ${{ runner.os }}-rootbuild
+    - name: Install ROOT prequisites
+      run: |
+        sudo apt-get install -y git dpkg-dev cmake g++ gcc binutils libx11-dev libxpm-dev libxft-dev libxext-dev
     - name: Download and build ROOT
       if: steps.cache-root.outputs.cache-hit != 'true'
       run: |
