@@ -1,64 +1,24 @@
-name: Python package
 
-on: [pull_request, push]
+name: CI
+#Running tests on all branches
+on: [push,pull_request]
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-18.04]
-        python-version: [2.7]
-      fail-fast: false
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Print Python info
-      run: |
-        python --version
-        python -c "import sys; print ('UCS4 build' if sys.maxunicode > 65535 else 'UCS2 build')"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-    - name: Cache ROOT
-      id: cache-root
-      uses: actions/cache@v1
-      with:
-        path: rootBuild
-        key: ${{ runner.os }}-rootbuild
-    - name: Install ROOT prequisites
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake davix-dev dcap-dev fonts-freefont-ttf g++ gcc gfal2 gfortran git libafterimage-dev libavahi-compat-libdnssd-dev libcfitsio-dev libfftw3-dev libfreetype6-dev libftgl-dev libgfal2-dev libgif-dev libgl2ps-dev libglew-dev libglu-dev libgraphviz-dev libgsl-dev libjemalloc-dev libjpeg-dev libkrb5-dev libldap2-dev liblz4-dev liblzma-dev libmysqlclient-dev libpcre++-dev libpng-dev libpq-dev libpythia8-dev libqt4-dev libsqlite3-dev libssl-dev libtbb-dev libtiff-dev libx11-dev libxext-dev libxft-dev libxml2-dev libxpm-dev libz-dev locales lsb-release make python-dev python-numpy r-base r-cran-rcpp r-cran-rinside srm-ifce-dev unixodbc-dev
-    - name: Download and build ROOT
-      if: steps.cache-root.outputs.cache-hit != 'true'
-      run: |
-        echo "Cache miss, building ROOT from source..."
-        wget https://root.cern/download/root_v6.20.00.source.tar.gz
-        tar -xvf root_v6.20.00.source.tar.gz
-        mkdir rootBuild
-        cd rootBuild
-        cmake ../root-6.20.00
-        cmake --build . -- j2 --target install
-        source bin/thisroot.sh
-        cd ..
-    - name: Source cached ROOT
-      if: steps.cache-root.outputs.cache-hit == 'true'
-      run: |
-        echo "Cache hit, sourcing cached ROOT..."
-        source bin/thisroot.sh
-        cd ..
-    - name: Test with pytest
-      run: |
-            pip install numpy==1.16.5
-            curl -O https://root.cern.ch/download/root_v6.20.00.Linux-ubuntu18-x86_64-gcc7.4.tar.gz
-            tar xzf root_v6.20.00.Linux-ubuntu18-x86_64-gcc7.4.tar.gz
-            source ./root/bin/thisroot.sh
-            pip install --upgrade enum34 pytest_pylint configparser astroid coveralls
-            sudo apt update
-            sudo apt install -y ghostscript
+jobs:  
+  # This is a job for running ci tests on linux python3
+  linux-build:
+      runs-on: [ubuntu-18.04]
+    
+      container:
+          image: 'rootproject/root:latest'
+      steps:
+        - uses: actions/checkout@v2
+    # The type of runner that the job will run on
+        - name: Test with pytest
+          run: |
+            yum install -y python-pip ghostscript 
             pip install pytest
-            python ./.github/testroot.py
+            python setup.py test
+        - name: Coveralls
+          uses: coverallsapp/github-action@master
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
