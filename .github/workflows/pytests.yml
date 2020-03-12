@@ -18,7 +18,4 @@ jobs:
             yum install -y python-pip ghostscript 
             pip install pytest
             python setup.py test
-        - name: Coveralls
-          uses: coverallsapp/github-action@master
-          with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
+            coveralls
