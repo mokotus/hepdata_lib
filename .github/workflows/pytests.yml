@@ -39,7 +39,6 @@ jobs:
         echo "Cache miss, building ROOT from source..."
         wget https://root.cern/download/root_v6.20.00.source.tar.gz
         tar -xvf root_v6.20.00.source.tar.gz
-        source root-6.20.00/bin/thisroot.sh
         mkdir rootBuild
         cd rootBuild
         cmake ../root-6.20.00
