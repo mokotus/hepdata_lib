@@ -41,7 +41,6 @@ jobs:
         source root-6.20.00/bin/thisroot.sh
         mkdir rootBuild
         cd rootBuild
-        sudo apt-get install cmake -y
         cmake ../root-6.20.00
         cmake --build . -- j2 --target install
         source bin/thisroot.sh
