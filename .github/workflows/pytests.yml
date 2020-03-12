@@ -32,18 +32,18 @@ jobs:
     - name: Install ROOT prequisites
       run: |
         sudo apt-get install -y cmake davix-dev dcap-dev fonts-freefont-ttf g++ gcc gfal2 gfortran git libafterimage-dev libavahi-compat-libdnssd-dev libcfitsio-dev libfftw3-dev libfreetype6-dev libftgl-dev libgfal2-dev libgif-dev libgl2ps-dev libglew-dev libglu-dev libgraphviz-dev libgsl-dev libjemalloc-dev libjpeg-dev libkrb5-dev libldap2-dev liblz4-dev liblzma-dev libmysqlclient-dev libpcre++-dev libpng-dev libpq-dev libpythia8-dev libqt4-dev libsqlite3-dev libssl-dev libtbb-dev libtiff-dev libx11-dev libxext-dev libxft-dev libxml2-dev libxpm-dev libz-dev locales lsb-release make python-dev python-numpy r-base r-cran-rcpp r-cran-rinside srm-ifce-dev unixodbc-dev
-        sudo apt-get install gfortran libssl-dev libpcre3-dev xlibmesa-glu-dev libglew1.5-dev libftgl-dev libmysqlclient-dev libfftw3-dev libcfitsio-dev graphviz-dev libavahi-compat-libdnssd-dev libldap2-dev python-dev libxml2-dev libkrb5-dev libgsl0-dev libqt4-dev
     - name: Download and build ROOT
       if: steps.cache-root.outputs.cache-hit != 'true'
       run: |
         echo "Cache miss, building ROOT from source..."
         wget https://root.cern/download/root_v6.20.00.source.tar.gz
         tar -xvf root_v6.20.00.source.tar.gz
+        source root-6.20.00/bin/thisroot.sh
         mkdir rootBuild
         cd rootBuild
         sudo apt-get install cmake -y
         cmake ../root-6.20.00
-        cmake --build .
+        cmake --build . -- j2 --target install
         source bin/thisroot.sh
         cd ..
     - name: Source cached ROOT
